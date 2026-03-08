@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tris</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet">
+<style>
+
+/* ── 1. Sabbia (default) ── */
+:root {
+  --bg:         #f4f0e8;
+  --grid-bg:    #9e937e;
+  --cell-bg:    #f4f0e8;
+  --cell-hover: #ede5d5;
+  --text:       #2e2b25;
+  --subtext:    #7d7567;
+  --x-color:    #4a3820;
+  --o-color:    #7a2e1e;
+  --win-glow:   rgba(122,46,30,0.13);
+  --btn-bg:     #2e2b25;
+  --btn-txt:    #f4f0e8;
+  --modal-bg:   #eee8db;
+  --modal-border:#c8bfaa;
+}
+:root.dark {
+  --bg:         #1a1814;
+  --grid-bg:    #4a443a;
+  --cell-bg:    #1a1814;
+  --cell-hover: #26231e;
+  --text:       #e8e2d5;
+  --subtext:    #7a7268;
+  --x-color:    #c9a96e;
+  --o-color:    #c97b6e;
+  --win-glow:   rgba(201,123,110,0.15);
+  --btn-bg:     #e8e2d5;
+  --btn-txt:    #1a1814;
+  --modal-bg:   #1f1c17;
+  --modal-border:#3d3830;
+}
+
+/* ── 2. Foresta ── */
+:root.palette-foresta {
+  --bg:         #edf2ec;
+  --grid-bg:    #7a9e7e;
+  --cell-bg:    #edf2ec;
+  --cell-hover: #deeade;
+  --text:       #1e2e1e;
+  --subtext:    #5a7a5a;
+  --x-color:    #2d5a2d;
+  --o-color:    #7a4f1a;
+  --win-glow:   rgba(122,79,26,0.13);
+  --btn-bg:     #2d5a2d;
+  --btn-txt:    #edf2ec;
+  --modal-bg:   #e4ede3;
+  --modal-border:#a8c8a8;
+}
+:root.palette-foresta.dark {
+  --bg:         #111a11;
+  --grid-bg:    #2a4a2a;
+  --cell-bg:    #111a11;
+  --cell-hover: #1a2a1a;
+  --text:       #cce0cc;
+  --subtext:    #5a7a5a;
+  --x-color:    #7ec87e;
+  --o-color:    #c8a45e;
+  --win-glow:   rgba(126,200,126,0.15);
+  --btn-bg:     #cce0cc;
+  --btn-txt:    #111a11;
+  --modal-bg:   #151e15;
+  --modal-border:#2a4a2a;
+}
+
+/* ── 3. Cielo ── */
+:root.palette-cielo {
+  --bg:         #eaf2f8;
+  --grid-bg:    #7aaec8;
+  --cell-bg:    #eaf2f8;
+  --cell-hover: #d8eaf4;
+  --text:       #1a2e3e;
+  --subtext:    #5a7a8e;
+  --x-color:    #1a4e6e;
+  --o-color:    #8e3a1a;
+  --win-glow:   rgba(142,58,26,0.12);
+  --btn-bg:     #1a4e6e;
+  --btn-txt:    #eaf2f8;
+  --modal-bg:   #e0edf5;
+  --modal-border:#a8cce0;
+}
+:root.palette-cielo.dark {
+  --bg:         #0e1820;
+  --grid-bg:    #1a3a50;
+  --cell-bg:    #0e1820;
+  --cell-hover: #162030;
+  --text:       #b8d8ee;
+  --subtext:    #5a7a8e;
+  --x-color:    #5ab4e0;
+  --o-color:    #e0845a;
+  --win-glow:   rgba(90,180,224,0.15);
+  --btn-bg:     #b8d8ee;
+  --btn-txt:    #0e1820;
+  --modal-bg:   #111e28;
+  --modal-border:#1a3a50;
+}
+
+/* ── 4. Cyberpunk ── */
+:root.palette-cyberpunk,
+:root.palette-cyberpunk.dark {
+  --bg:         #0d0d1a;
+  --grid-bg:    #1a0a2e;
+  --cell-bg:    #0d0d1a;
+  --cell-hover: #150d28;
+  --text:       #e0e0ff;
+  --subtext:    #7070aa;
+  --x-color:    #00ffee;
+  --o-color:    #ff00cc;
+  --win-glow:   rgba(255,0,204,0.2);
+  --btn-bg:     #ff00cc;
+  --btn-txt:    #0d0d1a;
+  --modal-bg:   #100d20;
+  --modal-border:#2a1050;
+}
+
+/* ── 5. Neon Dusk ── */
+:root.palette-neondusk,
+:root.palette-neondusk.dark {
+  --bg:         #1a0a00;
+  --grid-bg:    #3a1500;
+  --cell-bg:    #1a0a00;
+  --cell-hover: #240e00;
+  --text:       #ffe0b0;
+  --subtext:    #aa7040;
+  --x-color:    #ff6a00;
+  --o-color:    #ffe000;
+  --win-glow:   rgba(255,224,0,0.18);
+  --btn-bg:     #ff6a00;
+  --btn-txt:    #1a0a00;
+  --modal-bg:   #1e0c00;
+  --modal-border:#3a1500;
+}
+
+/* ══════════════════════════════════════════
+   BASE STYLES
+══════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.35s, color 0.35s;
+  user-select: none;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.2rem;
+  padding: 2rem;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: space-between;
+}
+
+h1 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: clamp(2.2rem, 6vw, 3rem);
+  letter-spacing: -0.02em;
+  color: var(--text);
+  transition: color 0.35s;
+}
+
+.settings-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  color: var(--subtext);
+  transition: color 0.25s, transform 0.4s cubic-bezier(.4,0,.2,1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.settings-btn:hover { color: var(--text); }
+.settings-btn.open { transform: rotate(90deg); }
+.settings-btn svg { width: 26px; height: 26px; }
+
+.status {
+  font-size: 1rem;
+  font-weight: 300;
+  color: var(--subtext);
+  letter-spacing: 0.04em;
+  min-height: 1.4em;
+  transition: color 0.3s;
+  text-align: center;
+}
+.status.highlight { color: var(--x-color); font-weight: 400; }
+
+.board-wrap { position: relative; border-radius: 12px; overflow: hidden; }
+
+.board {
+  --cell-size: min(calc((330px - 20px) / 3), calc((82vw - 20px) / 3));
+  display: grid;
+  grid-template-columns: repeat(3, var(--cell-size));
+  grid-template-rows: repeat(3, var(--cell-size));
+  gap: 5px;
+  background: var(--grid-bg);
+  padding: 5px;
+  border-radius: 12px;
+  transition: background 0.35s;
+}
+
+.cell {
+  background: var(--cell-bg);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+.cell:hover:not(.taken) { background: var(--cell-hover); }
+.cell svg { width: 52%; height: 52%; overflow: visible; }
+.cell.winner { background: var(--win-glow); }
+
+.x-line {
+  stroke: var(--x-color);
+  stroke-width: 3; stroke-linecap: round; fill: none;
+  stroke-dasharray: 60; stroke-dashoffset: 60;
+  animation: draw 0.3s ease forwards;
+  transition: stroke 0.35s;
+}
+.o-circle {
+  stroke: var(--o-color);
+  stroke-width: 3; stroke-linecap: round; fill: none;
+  stroke-dasharray: 188; stroke-dashoffset: 188;
+  animation: draw 0.35s ease forwards;
+  transition: stroke 0.35s;
+}
+@keyframes draw { to { stroke-dashoffset: 0; } }
+
+.win-line {
+  position: absolute;
+  background: var(--o-color);
+  border-radius: 3px;
+  opacity: 0;
+  transition: opacity 0.4s 0.1s;
+  pointer-events: none;
+  z-index: 2;
+}
+.win-line.visible { opacity: 1; }
+
+.new-btn {
+  background: var(--btn-bg);
+  color: var(--btn-txt);
+  border: none;
+  border-radius: 100px;
+  padding: 0.75rem 2.2rem;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: background 0.35s, color 0.35s, transform 0.15s, opacity 0.25s;
+  opacity: 0;
+  transform: translateY(6px);
+}
+.new-btn.visible { opacity: 1; transform: translateY(0); }
+.new-btn:hover { opacity: 0.82; }
+.new-btn:active { transform: scale(0.97); }
+
+/* ══════════════════════════════════════════
+   MODAL
+══════════════════════════════════════════ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+
+.modal {
+  background: var(--modal-bg);
+  border: 1px solid var(--modal-border);
+  border-radius: 20px 20px 0 0;
+  padding: 1.4rem 1.6rem 2.8rem;
+  width: 100%;
+  max-width: 440px;
+  transform: translateY(100%);
+  transition: transform 0.32s cubic-bezier(.4,0,.2,1), background 0.35s, border-color 0.35s;
+}
+.modal-overlay.open .modal { transform: translateY(0); }
+
+.modal-handle {
+  width: 36px; height: 4px;
+  background: var(--modal-border);
+  border-radius: 2px;
+  margin: 0 auto 1.4rem;
+  transition: background 0.35s;
+}
+
+.modal h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 1.4rem;
+  color: var(--text);
+  transition: color 0.35s;
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.6rem;
+}
+.setting-label {
+  font-size: 0.88rem;
+  color: var(--subtext);
+  letter-spacing: 0.04em;
+  transition: color 0.35s;
+}
+
+.pill-toggle {
+  display: flex;
+  background: var(--modal-border);
+  border-radius: 100px;
+  padding: 3px;
+  gap: 2px;
+  transition: background 0.35s;
+}
+.pill-toggle button {
+  border: none;
+  background: transparent;
+  border-radius: 100px;
+  padding: 5px 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  cursor: pointer;
+  color: var(--subtext);
+  transition: background 0.2s, color 0.2s;
+}
+.pill-toggle button.active {
+  background: var(--btn-bg);
+  color: var(--btn-txt);
+}
+
+.pill-toggle button.disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.palette-section-label {
+  font-size: 0.78rem;
+  color: var(--subtext);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 0.9rem;
+  transition: color 0.35s;
+}
+
+.palette-grid {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.palette-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  padding: 0;
+  flex: 1;
+}
+
+.chip-preview {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 3px;
+  padding: 6px;
+  border: 2.5px solid transparent;
+  transition: border-color 0.2s, transform 0.15s;
+  cursor: pointer;
+}
+.chip-preview:hover { transform: scale(1.08); }
+.palette-chip.active .chip-preview { border-color: var(--text); }
+
+.chip-dot { border-radius: 50%; }
+
+.chip-label {
+  font-size: 0.68rem;
+  color: var(--subtext);
+  text-align: center;
+  transition: color 0.35s;
+}
+.palette-chip.active .chip-label { color: var(--text); font-weight: 400; }
+
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Tris</h1>
+    <button class="settings-btn" id="settingsBtn" aria-label="Impostazioni">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+    </button>
+  </header>
+
+  <div class="status" id="status">Il turno di X</div>
+
+  <div class="board-wrap">
+    <div class="board" id="board"></div>
+    <div class="win-line" id="winLine"></div>
+  </div>
+
+  <button class="new-btn" id="newBtn">Nuova partita</button>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2>Impostazioni</h2>
+
+    <div class="setting-row">
+      <span class="setting-label">Modalità</span>
+      <div class="pill-toggle">
+        <button id="btnLight">☀ Chiaro</button>
+        <button id="btnDark">☾ Scuro</button>
+      </div>
+    </div>
+
+    <div class="palette-section-label">Palette colori</div>
+    <div class="palette-grid" id="paletteGrid"></div>
+  </div>
+</div>
+
+<script>
+const PALETTES = [
+  {
+    id: 'sabbia', label: 'Sabbia',
+    bgL: '#f4f0e8', bgD: '#1a1814',
+    gridL: '#9e937e', gridD: '#4a443a',
+    xL: '#4a3820', xD: '#c9a96e',
+    oL: '#7a2e1e', oD: '#c97b6e',
+  },
+  {
+    id: 'foresta', label: 'Foresta',
+    bgL: '#edf2ec', bgD: '#111a11',
+    gridL: '#7a9e7e', gridD: '#2a4a2a',
+    xL: '#2d5a2d', xD: '#7ec87e',
+    oL: '#7a4f1a', oD: '#c8a45e',
+  },
+  {
+    id: 'cielo', label: 'Cielo',
+    bgL: '#eaf2f8', bgD: '#0e1820',
+    gridL: '#7aaec8', gridD: '#1a3a50',
+    xL: '#1a4e6e', xD: '#5ab4e0',
+    oL: '#8e3a1a', oD: '#e0845a',
+  },
+  {
+    id: 'cyberpunk', label: 'Cyber',
+    bgL: '#0d0d1a', bgD: '#0d0d1a',
+    gridL: '#1a0a2e', gridD: '#1a0a2e',
+    xL: '#00ffee', xD: '#00ffee',
+    oL: '#ff00cc', oD: '#ff00cc',
+    forceDark: true,
+  },
+  {
+    id: 'neondusk', label: 'Neon',
+    bgL: '#1a0a00', bgD: '#1a0a00',
+    gridL: '#3a1500', gridD: '#3a1500',
+    xL: '#ff6a00', xD: '#ff6a00',
+    oL: '#ffe000', oD: '#ffe000',
+    forceDark: true,
+  },
+];
+
+let currentId = 'sabbia';
+let isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+function applyTheme() {
+  const root = document.documentElement;
+  const p = PALETTES.find(x => x.id === currentId);
+  const dark = p.forceDark ? true : isDark;
+
+  root.className = 'palette-' + p.id + (dark ? ' dark' : '');
+
+  const btnLight = document.getElementById('btnLight');
+  const btnDark  = document.getElementById('btnDark');
+
+  btnLight.classList.toggle('active', !dark);
+  btnDark.classList.toggle('active', dark);
+  btnLight.classList.toggle('disabled', !!p.forceDark);
+  btnDark.classList.toggle('disabled', false);
+
+  document.querySelectorAll('.palette-chip').forEach(c => {
+    c.classList.toggle('active', c.dataset.id === currentId);
+  });
+}
+
+function buildChips() {
+  const grid = document.getElementById('paletteGrid');
+  grid.innerHTML = '';
+  PALETTES.forEach(p => {
+    const dark = p.forceDark ? true : isDark;
+    const bg   = dark ? p.bgD   : p.bgL;
+    const gr   = dark ? p.gridD : p.gridL;
+    const xc   = dark ? p.xD    : p.xL;
+    const oc   = dark ? p.oD    : p.oL;
+
+    const btn = document.createElement('button');
+    btn.className = 'palette-chip' + (p.id === currentId ? ' active' : '');
+    btn.dataset.id = p.id;
+    btn.innerHTML = `
+      <div class="chip-preview" style="background:${gr}">
+        <div class="chip-dot" style="background:${bg}"></div>
+        <div class="chip-dot" style="background:${xc}"></div>
+        <div class="chip-dot" style="background:${oc}"></div>
+        <div class="chip-dot" style="background:${bg}"></div>
+      </div>
+      <span class="chip-label">${p.label}</span>`;
+    btn.addEventListener('click', () => {
+      currentId = p.id;
+      if (p.forceDark) isDark = true;
+      applyTheme();
+      buildChips();
+    });
+    grid.appendChild(btn);
+  });
+}
+
+/* Modal */
+const overlay = document.getElementById('modalOverlay');
+const settingsBtn = document.getElementById('settingsBtn');
+
+settingsBtn.addEventListener('click', () => {
+  buildChips();
+  overlay.classList.add('open');
+  settingsBtn.classList.add('open');
+});
+overlay.addEventListener('click', e => {
+  if (e.target === overlay) {
+    overlay.classList.remove('open');
+    settingsBtn.classList.remove('open');
+  }
+});
+
+document.getElementById('btnLight').addEventListener('click', () => {
+  isDark = false; applyTheme(); buildChips();
+});
+document.getElementById('btnDark').addEventListener('click', () => {
+  isDark = true; applyTheme(); buildChips();
+});
+
+/* Game */
+const boardEl  = document.getElementById('board');
+const statusEl = document.getElementById('status');
+const newBtn   = document.getElementById('newBtn');
+const winLine  = document.getElementById('winLine');
+
+const WINS = [
+  [0,1,2],[3,4,5],[6,7,8],
+  [0,3,6],[1,4,7],[2,5,8],
+  [0,4,8],[2,4,6]
+];
+let board, current, over;
+
+function init() {
+  board = Array(9).fill(null);
+  current = 'X'; over = false;
+  statusEl.textContent = 'Il turno di X';
+  statusEl.classList.remove('highlight');
+  winLine.classList.remove('visible');
+  newBtn.classList.remove('visible');
+  boardEl.innerHTML = '';
+  for (let i = 0; i < 9; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    cell.dataset.i = i;
+    cell.addEventListener('click', onCell);
+    boardEl.appendChild(cell);
+  }
+}
+
+function onCell(e) {
+  const i = +e.currentTarget.dataset.i;
+  if (board[i] || over) return;
+  board[i] = current;
+  e.currentTarget.classList.add('taken');
+  e.currentTarget.innerHTML = current === 'X' ? svgX() : svgO();
+  const win = checkWin();
+  if (win) {
+    over = true;
+    win.forEach(idx => boardEl.children[idx].classList.add('winner'));
+    drawWinLine(win);
+    statusEl.textContent = `${current} ha vinto!`;
+    statusEl.classList.add('highlight');
+    newBtn.classList.add('visible');
+  } else if (board.every(Boolean)) {
+    over = true;
+    statusEl.textContent = 'Pareggio';
+    statusEl.classList.add('highlight');
+    newBtn.classList.add('visible');
+  } else {
+    current = current === 'X' ? 'O' : 'X';
+    statusEl.textContent = `Il turno di ${current}`;
+  }
+}
+
+function checkWin() {
+  for (const [a,b,c] of WINS)
+    if (board[a] && board[a] === board[b] && board[b] === board[c]) return [a,b,c];
+  return null;
+}
+
+function cellRect(i) {
+  const cell = boardEl.children[i];
+  const b = boardEl.getBoundingClientRect();
+  const c = cell.getBoundingClientRect();
+  return { cx: c.left - b.left + c.width/2, cy: c.top - b.top + c.height/2 };
+}
+
+function drawWinLine(combo) {
+  const p1 = cellRect(combo[0]), p2 = cellRect(combo[2]);
+  const dx = p2.cx-p1.cx, dy = p2.cy-p1.cy;
+  const len = Math.sqrt(dx*dx+dy*dy);
+  const angle = Math.atan2(dy,dx)*180/Math.PI;
+  winLine.style.cssText = `width:${len}px;height:3px;top:${p1.cy-1.5}px;left:${p1.cx}px;transform:rotate(${angle}deg);transform-origin:0 50%`;
+  requestAnimationFrame(() => winLine.classList.add('visible'));
+}
+
+function svgX() {
+  return `<svg viewBox="0 0 40 40">
+    <line class="x-line" x1="8" y1="8" x2="32" y2="32"/>
+    <line class="x-line" x1="32" y1="8" x2="8" y2="32" style="animation-delay:.05s"/>
+  </svg>`;
+}
+function svgO() {
+  return `<svg viewBox="0 0 40 40">
+    <circle class="o-circle" cx="20" cy="20" r="13" transform="rotate(-90 20 20)"/>
+  </svg>`;
+}
+
+newBtn.addEventListener('click', init);
+applyTheme();
+init();
+</script>
+</body>
+</html>
